@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-01-16T04:15:51.979347",
+  "repository": "fastapi/fastapi",
+  "results": {
+    "total_issues": 1,
+    "duplicates_found": 0,
+    "issues": [
+      {
+        "id": 3798488176,
+        "title": "StreamingResponse doc example needs correction",
+        "body": "[`StreamingResponse` docs](https://fastapi.tiangolo.com/advanced/custom-response/?h=responses#streamingresponse) state:\n\n> Takes an async generator or a normal generator/iterator\n\nHowever based on https://github.com/Kludex/starlette/discussions/1776#discussioncomment-3207518 `async` generetors need something `await`ed to work:\n\n```py\nimport asyncio\nfrom time import sleep\nfrom fastapi import FastAPI\nfrom fastapi.responses import StreamingResponse\n\napp = FastAPI()\n\nasync def fake_video_streamer():\n    for i in range(10):\n        sleep(0.1)\n        yield b\"some fake video bytes\"\n        # await asyncio.sleep(0)  # <-- uncomment to fix example\n\n@app.get(\"/\")\nasync def main():\n    \"\"\"\n    this is as per\n    https://fastapi.tiangolo.com/advanced/custom-response/?h=responses#streamingresponse\n    but does not to work (blocks for 1 sec, then returns all chunks at once):\n      curl -sNo- localhost:8000\n      wget -qO- localhost:8000\n    \"\"\"\n    return StreamingResponse(fake_video_streamer())\n```\n\n- `uvicorn==0.40.0`\n- `fastapi==0.128.0`",
+        "url": "https://github.com/fastapi/fastapi/issues/14680",
+        "classification": {
+          "label": "documentation",
+          "confidence": 0.4
+        },
+        "priority": "low"
+      }
+    ],
+    "duplicates": []
+  }
+}
